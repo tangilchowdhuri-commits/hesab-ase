@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f7b5c"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><title>Hesab Ase</title>
+<style>
+:root{--bg:#f4f6f2;--cd:#fff;--tx:#1b2a22;--mu:#6b7a72;--pr:#0f7b5c;--ex:#c0392b;--dg:#c77d00;--bd:#dfe5de;--on:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101814;--cd:#19241e;--tx:#e8efe9;--mu:#93a39a;--pr:#34c08f;--ex:#ff7b6b;--dg:#f0b44c;--bd:#2a3a31;--on:#06150f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101814;--cd:#19241e;--tx:#e8efe9;--mu:#93a39a;--pr:#34c08f;--ex:#ff7b6b;--dg:#f0b44c;--bd:#2a3a31;--on:#06150f;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Noto Sans Bengali","Segoe UI",sans-serif}
+#app{max-width:520px;margin:0 auto;padding:14px}
+.box{margin-top:8vh}h1{text-align:center;color:var(--pr);margin:0 0 16px}
+input,select{width:100%;padding:12px;margin:5px 0;border:1px solid var(--bd);border-radius:10px;background:var(--cd);color:var(--tx);font:inherit}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--cd);color:var(--tx);border-radius:10px;padding:8px 12px}
+.pri{width:100%;background:var(--pr);color:var(--on);border:0;padding:13px;font-weight:600;margin-top:6px}
+.tabs{display:flex;gap:6px;margin-bottom:8px}.tabs button{flex:1}.on{background:var(--pr);color:var(--on);border-color:var(--pr)}
+.err{color:var(--ex);min-height:1.2em;margin:2px 0}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.top button{padding:6px 10px;margin-left:4px}
+.hi{color:var(--mu);margin:0 0 10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.c{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:10px}.c small{display:block;color:var(--mu)}.c b{font-size:1.15em}
+.big{grid-column:1/3;background:var(--pr);color:var(--on)}.big small{color:var(--on);opacity:.85}.big b{font-size:1.7em}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}.card h3{margin:0 0 4px}
+.chips{display:flex;gap:6px;overflow-x:auto;margin:6px 0}.chips button{white-space:nowrap;padding:6px 12px}
+.it{display:flex;justify-content:space-between;gap:8px;background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:10px;margin:8px 0}
+.it small{display:block;color:var(--mu);font-size:.78em}.r{text-align:right;white-space:nowrap}.r button{padding:4px 8px;margin:4px 0 0 4px;font-size:.85em}
+.in{color:var(--pr)}.ex{color:var(--ex)}.get,.give{color:var(--dg)}.done{opacity:.5;text-decoration:line-through}
+.em{text-align:center;color:var(--mu);padding:24px}
+</style></head><body><div id="app"></div>
+<script>
+const T={en:{app:"Hesab Ase",login:"Login",reg:"Create account",name:"Name",pass:"Password",out:"Logout",hi:"Hello",in:"Income",ex:"Expense",get:"To receive",give:"To pay",bal:"Balance",add:"Add entry",amt:"Amount",note:"Description",per:"Person (optional)",save:"Save",saved:"Saved",del:"Delete this entry?",all:"All",empty:"No entries yet",bad:"Wrong name or password",ex2:"Name already taken",fill:"Fill all fields",amt2:"Enter a valid amount",settle:"Settled",undo:"Undo"},
+bn:{app:"হিসাব আছে",login:"লগইন",reg:"নতুন অ্যাকাউন্ট",name:"নাম",pass:"পাসওয়ার্ড",out:"লগআউট",hi:"স্বাগতম",in:"আয়",ex:"ব্যয়",get:"পাওনা",give:"দেনা",bal:"ব্যালেন্স",add:"হিসাব যোগ করুন",amt:"টাকার পরিমাণ",note:"বিবরণ",per:"ব্যক্তি (ঐচ্ছিক)",save:"সংরক্ষণ করুন",saved:"সংরক্ষিত",del:"এই হিসাব মুছবেন?",all:"সব",empty:"এখনো কোনো হিসাব নেই",bad:"নাম বা পাসওয়ার্ড ভুল",ex2:"এই নাম আগে থেকেই আছে",fill:"সব ঘর পূরণ করুন",amt2:"সঠিক টাকার পরিমাণ দিন",settle:"মিটেছে",undo:"ফেরান"}};
+function ld(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+const $=i=>document.getElementById(i);
+let lang=ld('ha_lang','bn'),user=ld('ha_session',null),data=user?ld('ha_data_'+user,[]):[],flt='all',mon='',mode='login';
+const t=k=>T[lang][k]||k;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const loc=()=>lang==='bn'?'bn-BD':'en-GB';
+const num=n=>'৳'+Number(n).toLocaleString(lang==='bn'?'bn-BD':'en-US');
+const fd=d=>new Date(d+'T00:00').toLocaleDateString(loc(),{day:'numeric',month:'short',year:'numeric'});
+const ft=d=>new Date(d).toLocaleString(loc(),{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'});
+async function hs(s){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('ha:'+s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){let h=5381;for(const c of s)h=(h*33)^c.charCodeAt(0);return'f'+(h>>>0)}}
+function msg(m){$('m').textContent=m}
+function setLang(){lang=lang==='bn'?'en':'bn';sv('ha_lang',lang);render()}
+async function auth(){const n=$('n').value.trim(),p=$('p').value;if(!n||!p)return msg(t('fill'));
+const u=ld('ha_users',{}),k=n.toLowerCase(),h=await hs(k+p);
+if(mode==='reg'){if(u[k])return msg(t('ex2'));u[k]={n,h};sv('ha_users',u)}else if(!u[k]||u[k].h!==h)return msg(t('bad'));
+user=k;sv('ha_session',k);data=ld('ha_data_'+k,[]);render()}
+function out(){user=null;sv('ha_session',null);data=[];render()}
+function add(){const am=parseFloat($('am').value),dt=$('dt').value;
+if(!(am>0)||!dt)return msg(t('amt2'));
+data.push({id:Date.now(),ty:$('ty').value,am,nt:$('nt').value.trim(),pe:$('pe').value.trim(),dt,at:Date.now(),done:false});
+sv('ha_data_'+user,data);$('am').value='';$('nt').value='';$('pe').value='';msg('');draw()}
+function rm(id){if(!confirm(t('del')))return;data=data.filter(e=>e.id!==id);sv('ha_data_'+user,data);draw()}
+function tg(id){const e=data.find(x=>x.id===id);e.done=!e.done;sv('ha_data_'+user,data);draw()}
+function render(){const A=$('app');document.documentElement.lang=lang;
+if(!user){A.innerHTML=`<div class="box"><h1>💰 ${t('app')}</h1><div class="tabs"><button class="${mode==='login'?'on':''}" onclick="mode='login';render()">${t('login')}</button><button class="${mode==='reg'?'on':''}" onclick="mode='reg';render()">${t('reg')}</button></div><input id="n" placeholder="${t('name')}" autocomplete="username"><input id="p" type="password" placeholder="${t('pass')}" autocomplete="${mode==='reg'?'new-password':'current-password'}"><p id="m" class="err"></p><button class="pri" onclick="auth()">${mode==='reg'?t('reg'):t('login')}</button><p style="text-align:center"><button onclick="setLang()">${lang==='bn'?'English':'বাংলা'}</button></p></div>`;return}
+const nm=(ld('ha_users',{})[user]||{}).n||user,today=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+A.innerHTML=`<div class="top"><b>💰 ${t('app')}</b><span><button onclick="setLang()">${lang==='bn'?'EN':'বাং'}</button><button onclick="out()">${t('out')}</button></span></div><p class="hi">${t('hi')}, ${esc(nm)}</p><div id="sum" class="grid"></div>
+<div class="card"><h3>${t('add')}</h3><select id="ty">${['in','ex','get','give'].map(k=>`<option value="${k}">${t(k)}</option>`).join('')}</select><input id="am" type="number" inputmode="decimal" placeholder="${t('amt')}"><input id="nt" placeholder="${t('note')}"><input id="pe" placeholder="${t('per')}"><input id="dt" type="date" value="${today}"><p id="m" class="err"></p><button class="pri" onclick="add()">${t('save')}</button></div>
+<div id="chips" class="chips"></div><input type="month" id="mo" value="${mon}" onchange="mon=this.value;draw()"><div id="list"></div>`;draw()}
+function draw(){const S=k=>data.filter(e=>e.ty===k&&(k==='in'||k==='ex'||!e.done)).reduce((a,e)=>a+e.am,0),b=S('in')-S('ex');
+$('sum').innerHTML=`<div class="c big"><small>${t('bal')}</small><b>${num(b)}</b></div>`+['in','ex','get','give'].map(k=>`<div class="c"><small>${t(k)}</small><b class="${k}">${num(S(k))}</b></div>`).join('');
+$('chips').innerHTML=['all','in','ex','get','give'].map(k=>`<button class="${flt===k?'on':''}" onclick="flt='${k}';draw()">${t(k)}</button>`).join('');
+const L=data.filter(e=>(flt==='all'||e.ty===flt)&&(!mon||e.dt.startsWith(mon))).sort((a,b)=>b.dt.localeCompare(a.dt)||b.at-a.at);
+$('list').innerHTML=L.length?L.map(e=>{const due=e.ty==='get'||e.ty==='give';return`<div class="it"><div class="${e.done?'done':''}"><b>${esc(e.nt||t(e.ty))}</b>${e.pe?' · '+esc(e.pe):''}<small>📅 ${fd(e.dt)} · ${t('saved')}: ${ft(e.at)}</small></div><div class="r"><b class="${e.ty}">${e.ty==='ex'||e.ty==='give'?'−':'+'}${num(e.am)}</b><br>${due?`<button onclick="tg(${e.id})">${e.done?t('undo'):t('settle')}</button>`:''}<button onclick="rm(${e.id})">🗑</button></div></div>`}).join(''):`<div class="em">${t('empty')}</div>`}
+render();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script></body></html>
